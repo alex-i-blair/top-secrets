@@ -18,7 +18,6 @@ describe('top-secrets routes', () => {
     expect(res.body).toEqual({
       id: expect.any(String),
       username: 'Toby',
-      password: 'spoon',
     });
   });
 });
