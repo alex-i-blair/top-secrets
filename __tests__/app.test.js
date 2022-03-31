@@ -53,7 +53,7 @@ describe('top-secrets routes', () => {
       username: 'Toby',
       password: 'spoon',
     });
-    const res = await agent.post('/api/v1/users/sessions').send({
+    await agent.post('/api/v1/users/sessions').send({
       username: 'Toby',
       password: 'spoon',
     });
@@ -73,15 +73,35 @@ describe('top-secrets routes', () => {
       });
   });
 
-  // it('should return a list of secrets for a logged in user', async () => {
-  //   const agent = request.agent(app);
-  //   const expected = [
-  //     {
-  //       id: expect.any(String),
-  //       title: 'dog',
-  //       description: 'Toby is the best dog',
-  //       createdAt: expect.any(String),
-  //     },
-  //   ];
-  // });
+  it('should return a list of secrets for a logged in user', async () => {
+    const agent = request.agent(app);
+
+    //if no logged in user
+    let res = await agent.get('/api/v1/secrets');
+    expect(res.status).toEqual(401);
+
+    await UserService.create({
+      username: 'Toby',
+      password: 'spoon',
+    });
+    await agent.post('/api/v1/users/sessions').send({
+      username: 'Toby',
+      password: 'spoon',
+    });
+
+    await agent.post('/api/v1/secrets').send({
+      title: 'dog',
+      description: 'Toby is the best dog',
+    });
+
+    const expected = [
+      {
+        title: 'dog',
+        description: 'Toby is the best dog',
+        createdAt: expect.any(String),
+      },
+    ];
+    res = await agent.get('/api/v1/secrets');
+    expect(res.body).toEqual(expected);
+  });
 });
